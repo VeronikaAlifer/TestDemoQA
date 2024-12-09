@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--<Configuration status="WARN">-->
+<!--    <Appenders>-->
+<!--        <Console name="Console" target="SYSTEM_OUT">-->
+<!--            <PatternLayout pattern="%d{HH:mm:ss.SSS} %-5level - %msg%n"/>-->
+<!--        </Console>-->
+<!--        <File name="File" fileName="c:\\temp\\log4.log" append="true">-->
+<!--            <PatternLayout>-->
+<!--                <Pattern>%d{HH:mm:ss.SSS} [%t] %-5level - %msg%n</Pattern>-->
+<!--            </PatternLayout>-->
+<!--        </File>-->
+<!--    </Appenders>-->
+<!--    <Loggers>-->
+<!--        <Logger name="com.sdetadda" level="info" additivity="true">-->
+<!--            <AppenderRef ref="Console"/>-->
+<!--        </Logger>-->
+<!--        <Root level="info">-->
+<!--            <AppenderRef ref="File"/>-->
+<!--        </Root>-->
+<!--    </Loggers>-->
+<!--</Configuration>-->
+
+
+<Configuration status="WARN">
+    <Appenders>
+        <!-- Логгирование в консоль -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%t] %-level %logger{2} %M - %msg%n" />
+        </Console>
+
+        <!-- Логгирование в файл -->
+        <File name="File" fileName="logs/app.log" append="true">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %logger{36} - %msg%n" />
+        </File>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="tests.TestTest" level="debug" additivity="false">
+            <AppenderRef ref="Console" />
+        </Logger>
+
+        <Logger name="tests.TestLog" level="warn" additivity="false">
+            <AppenderRef ref="File" />
+        </Logger>
+
+        <!-- Корневой логгер -->
+        <Root level="info">
+            <AppenderRef ref="Console" />
+<!--            <AppenderRef ref="File" />-->
+        </Root>
+    </Loggers>
+</Configuration>
