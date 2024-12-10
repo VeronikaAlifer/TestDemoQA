@@ -39,14 +39,14 @@
             <AppenderRef ref="Console" />
         </Logger>
 
-        <Logger name="tests.TestLog" level="warn" additivity="false">
+        <Logger name="tests" level="info" additivity="false">
             <AppenderRef ref="File" />
         </Logger>
 
         <!-- Корневой логгер -->
-        <Root level="info">
+        <Root level="WARN">
             <AppenderRef ref="Console" />
-<!--            <AppenderRef ref="File" />-->
+            <AppenderRef ref="File" />
         </Root>
     </Loggers>
 </Configuration>
