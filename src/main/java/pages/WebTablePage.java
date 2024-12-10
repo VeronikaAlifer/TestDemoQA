@@ -3,9 +3,11 @@ package pages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.List;
 
 public class WebTablePage {
     private WebDriver driver;
@@ -13,6 +15,7 @@ public class WebTablePage {
     private By addNewRecordButton = By.id("addNewRecordButton");
     private By searchBox = By.id("searchBox");
     private By grid = By.className("rt-table");
+
 
 
     public WebTablePage(WebDriver driver) {
@@ -30,5 +33,10 @@ public class WebTablePage {
 
     public boolean isGridDisplayed() {
         return driver.findElement(grid).isDisplayed();
+    }
+
+    public List<WebElement> getGritColumn () {
+        WebElement gridElement = driver.findElement(grid);
+        return gridElement.findElements(By.xpath("//div[@role='columnheader']"));
     }
 }
