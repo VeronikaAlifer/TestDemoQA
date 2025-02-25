@@ -9,27 +9,38 @@ import pages.TextBoxPage;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class TextBoxPageTest {
     WebDriver driver;
     TextBoxPage textBoxPage;
+    Logger logger = Logger.getLogger("TextBoxPageTest");
 
     @BeforeMethod
     public void setUp() {
+   //     PropertyConfigurator.configure("src/main/resources/log4j.properties");
+        logger.info("Test started");
         driver = new ChromeDriver();
+        logger.info("Open the test page");
         driver.get("https://demoqa.com/text-box");
+
+        logger.info("Maximize the page");
         driver.manage().window().maximize();
+
         driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(5));
         textBoxPage = new TextBoxPage(driver);
     }
 
     @Test
     public void testSuccessFilingFields() throws InterruptedException {
+        // System.out.println("Working Directory = " + System.getProperty("user.dir"));
+
         String userName = "Jon Doe";
         String userEmail = "john.doe@example.com";
         String currentAddress = "123 Main St, New York, NY";
         String permanentAddress = "456 Elm St, New York, NY";
 
+        logger.info("Fill all fields.");
         textBoxPage.fillAllFields(userName, userEmail, currentAddress, permanentAddress);
 
         Assert.assertFalse(textBoxPage.getOutputField().isDisplayed(), "Output field should be hidden before form submission.");
@@ -62,10 +73,11 @@ public class TextBoxPageTest {
 
     }
 
-//    @AfterMethod
-//    public void closeResources() {
-//        if (driver != null) {
-//            driver.quit();
-//        }
-//    }
+    @AfterMethod
+    public void closeResources() {
+        if (driver != null) {
+            driver.quit();
+            logger.info("Test completed");
+        }
+    }
 }
