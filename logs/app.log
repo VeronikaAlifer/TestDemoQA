@@ -1,4 +1,0 @@
-2024-12-10 12:44:35 [main] INFO  tests.WebTablePageTest - Launching browser and navigating to the web page.
-2024-12-10 12:44:37 [main] INFO  tests.WebTablePageTest - Verify list size match.
-2024-12-10 12:44:37 [main] INFO  tests.WebTablePageTest - Verifying column headers.
-2024-12-10 12:44:37 [main] INFO  tests.WebTablePageTest - Closing browser.
