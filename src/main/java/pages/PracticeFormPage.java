@@ -24,7 +24,7 @@ public class PracticeFormPage {
         this.driver = driver;
     }
 
-    public void typeFirsName(String name) {
+    public void typeFirstName(String name) {
         driver.findElement(firstNameField).sendKeys(name);
     }
 
@@ -90,18 +90,13 @@ public class PracticeFormPage {
     }
 
     public boolean isElementVisible(String elementLabel) {
-        switch (elementLabel) {
-            case "First Name":
-                return isElementDisplayed(firstNameField);
-            case "Last Name":
-               return isElementDisplayed(lastNameField);
-            case "Email":
-                return isElementDisplayed(userEmailField);
-            case "Mobile":
-                return isElementDisplayed(userNumberField);
-            default:
-                return false;
-        }
+        return switch (elementLabel) {
+            case "First Name" -> isElementDisplayed(firstNameField);
+            case "Last Name" -> isElementDisplayed(lastNameField);
+            case "Email" -> isElementDisplayed(userEmailField);
+            case "Mobile" -> isElementDisplayed(userNumberField);
+            default -> false;
+        };
     }
 
     public boolean isModalFormVisible(){
