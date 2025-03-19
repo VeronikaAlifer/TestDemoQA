@@ -41,7 +41,7 @@ public class PracticeFormPageTest {
         formData.put("Mobile", "0123456789");
         formData.put("Gender", "Female");
 
-        practiceFormPage.typeFirsName(firstName);
+        practiceFormPage.typeFirstName(firstName);
         practiceFormPage.typeLastName(lastName);
         practiceFormPage.typeUserNumber(formData.get("Mobile"));
         practiceFormPage.pickDateOfBirth();
