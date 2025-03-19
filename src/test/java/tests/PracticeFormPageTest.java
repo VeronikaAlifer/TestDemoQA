@@ -61,8 +61,6 @@ public class PracticeFormPageTest {
             String value = practiceFormPage.getCellData(i, 1);
             String expectedValue = formData.get(label);
             Assert.assertEquals(value, expectedValue, "Value mismatch for label: " + label);
-
-
         }
     }
 }

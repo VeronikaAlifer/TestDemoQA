@@ -1,10 +1,8 @@
 package pages;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
+import utils.ScrollUtils;
 
 import java.util.List;
 
@@ -19,8 +17,7 @@ public class PracticeFormPage {
     private By submitBtn = By.id("submit");
     private By genderRadioBtn = By.xpath("//input[@name='gender']");
     private By table = By.xpath("//table[@class='table table-dark table-striped table-bordered table-hover']");
-//    By genderRadioBtn = By.xpath("//input[@name='gender']");
-
+    private By modalForm = By.className("modal-content");
 
 
     public PracticeFormPage(WebDriver driver) {
@@ -45,19 +42,20 @@ public class PracticeFormPage {
 
     public void pickDateOfBirth() throws InterruptedException {
         WebElement element = driver.findElement(dateOfBirthInput);
-    //    element.click();
-      //  element.clear();
+        //    element.click();
+        //  element.clear();
         Thread.sleep(2000);
         element.sendKeys("23 Oct 2024");
-       // element.click();
+        // element.click();
     }
 
     public void typeSubjects() {
     }
 
     public void clickSubmitButton() {
-        JavascriptExecutor js = (JavascriptExecutor) driver;
-        js.executeScript("scroll(0, 700)");
+//        JavascriptExecutor js = (JavascriptExecutor) driver;
+//        js.executeScript("scroll(0, 700)");
+        ScrollUtils.scroll(driver, driver.findElement(submitBtn));
         driver.findElement(submitBtn).click();
     }
 
@@ -74,12 +72,43 @@ public class PracticeFormPage {
         }
     }
 
-    public List<WebElement> getRows(){
+    public List<WebElement> getRows() {
         WebElement element = driver.findElement(table);
         return element.findElements(By.cssSelector("tbody tr"));
     }
-    public String getCellData(int rowIndex, int collIndex){
-       return getRows().get(rowIndex).findElements(By.tagName("td")).get(collIndex).getText();
+
+    public String getCellData(int rowIndex, int collIndex) {
+        return getRows().get(rowIndex).findElements(By.tagName("td")).get(collIndex).getText();
     }
 
+    private boolean isElementDisplayed(By by) {
+        try {
+            return driver.findElement(by).isDisplayed();
+        } catch (NoSuchElementException e) {
+            return false;
+        }
+    }
+
+    public boolean isElementVisible(String elementLabel) {
+        switch (elementLabel) {
+            case "First Name":
+                return isElementDisplayed(firstNameField);
+            case "Last Name":
+               return isElementDisplayed(lastNameField);
+            case "Email":
+                return isElementDisplayed(userEmailField);
+            case "Mobile":
+                return isElementDisplayed(userNumberField);
+            default:
+                return false;
+        }
+    }
+
+    public boolean isModalFormVisible(){
+        try {
+            return driver.findElement(modalForm).isDisplayed();
+        }catch (NoSuchElementException | StaleElementReferenceException e){
+            return false;
+        }
+    }
 }

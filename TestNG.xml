@@ -1,13 +1,12 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 
-<suite name="Suite1" verbose="1">
+<suite name="Suite1" parallel="classes" thread-count="2">
 
-<!--    <parameter name="org.apache.commons.logging.Log" value="org.apache.commons.logging.impl.Log4JLogger" />-->
+    <!--    <parameter name="org.apache.commons.logging.Log" value="org.apache.commons.logging.impl.Log4JLogger" />-->
     <test name="Test Suite">
         <classes>
-            <class name="tests.TestLog"/>
-            <class name="tests.TestTest"/>
-            <class name="tests.TestLogger"/>
+            <class name="tests.WebTablePageTest"/>
+            <class name="tests.ButtonsPageTest"/>
 
         </classes>
     </test>

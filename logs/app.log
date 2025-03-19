@@ -1,0 +1,10 @@
+2025-01-29 13:20:52 [TestNG-test=Test Suite-1] INFO  tests.WebTablePageTest - Launching browser and navigating to the web page.
+2025-01-29 13:20:54 [TestNG-test=Test Suite-1] INFO  tests.WebTablePageTest - Open the registration form
+2025-01-29 13:20:55 [TestNG-test=Test Suite-1] INFO  tests.WebTablePageTest - Verifying the registration form is displayed.
+2025-01-29 13:20:55 [TestNG-test=Test Suite-1] INFO  tests.WebTablePageTest - Verifying the registration form title
+2025-01-29 13:20:55 [TestNG-test=Test Suite-1] INFO  tests.WebTablePageTest - Filling the registration form.
+2025-01-29 13:20:55 [TestNG-test=Test Suite-1] INFO  tests.WebTablePageTest - Verifying the new record appears in the web table.
+2025-01-29 13:20:56 [TestNG-test=Test Suite-1] INFO  tests.WebTablePageTest - Launching browser and navigating to the web page.
+2025-01-29 13:20:59 [TestNG-test=Test Suite-1] INFO  tests.WebTablePageTest - Launching browser and navigating to the web page.
+2025-01-29 13:21:01 [TestNG-test=Test Suite-1] INFO  tests.WebTablePageTest - Verify list size match.
+2025-01-29 13:21:01 [TestNG-test=Test Suite-1] INFO  tests.WebTablePageTest - Verifying column headers.
