@@ -4,7 +4,6 @@ import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
-import org.checkerframework.checker.units.qual.A;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.Assert;
@@ -18,6 +17,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.List;
+
 
 public class PracticeFormPageWithCSVTest {
 
@@ -46,7 +46,12 @@ public class PracticeFormPageWithCSVTest {
         driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(10));
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
 
-        log.info("Reading test data from CSV file.");
+        formPage = new PracticeFormPage(driver);
+
+    }
+
+    @Test
+    public void setNameFieldsUsingListTest() {
         try (CSVReader reader = new CSVReader(new FileReader(TestDataFile))) {
             rows = reader.readAll();
         } catch (IOException | CsvException e) {
@@ -54,12 +59,6 @@ public class PracticeFormPageWithCSVTest {
             throw new RuntimeException("Failed to read test data from CSV", e);
         }
 
-        formPage = new PracticeFormPage(driver);
-
-    }
-
-    @Test
-    public void setNameFieldsUsingListTest() {
         log.info("Opening the automation practice form page.");
         driver.get(URL);
 
@@ -77,7 +76,7 @@ public class PracticeFormPageWithCSVTest {
         String email = rows.get(1)[2];
         String phone = rows.get(1)[3];
 
-        formPage.typeFirsName(firstName);
+        formPage.typeFirstName(firstName);
         formPage.typeLastName(lastName);
         formPage.typeUserNumber(phone);
         formPage.typeUserEmail(email);
@@ -87,6 +86,32 @@ public class PracticeFormPageWithCSVTest {
 
         log.info("Verifying that form submission was not successful.");
         Assert.assertFalse(formPage.isModalFormVisible(), "The modal form visible but should not.");
+    }
+
+    @Test(dataProvider = "CSVData")
+    public void setNameFieldsUsingDataProviderTest(String firstName, String lastName, String email, String phoneNumber) {
+        log.info("Opening the automation practice form page.");
+        driver.get(URL);
+
+        log.info("Checking visibility of required fields.");
+        String[] fieldLabels = {"First Name", "Last Name", "Email", "Mobile"};
+
+        for (String value : fieldLabels) {
+            Assert.assertTrue(formPage.isElementVisible(value), String.format("%s element is not visible", value));
+        }
+
+        log.info("Filling out the form with test data.");
+        formPage.typeFirstName(firstName);
+        formPage.typeLastName(lastName);
+        formPage.typeUserEmail(email);
+        formPage.typeUserNumber(phoneNumber);
+
+        log.info("Clicking submit button.");
+        formPage.clickSubmitButton();
+
+        log.info("Verifying that form submission should fail due to validation errors.");
+        Assert.assertFalse(formPage.isModalFormVisible(),
+                "The modal form was displayed, but submission was expected to fail.");
     }
 
     @AfterMethod
@@ -107,5 +132,26 @@ public class PracticeFormPageWithCSVTest {
     @AfterTest
     public void tearDownReports() {
         reports.flush();
+    }
+
+    @DataProvider(name = "CSVData")
+    private Object[][] readCSVData() {
+        try (CSVReader reader = new CSVReader(new FileReader(TestDataFile))) {
+            rows = reader.readAll();
+        } catch (IOException | CsvException e) {
+            log.fail("Error reading CSV file: " + e.getMessage());
+            throw new RuntimeException("Failed to read test data from CSV", e);
+        }
+
+        Object[][] data = new Object[rows.size() - 1][4];
+
+        for (int i = 1; i < rows.size(); i++) {
+            data[i - 1][0] = rows.get(i)[0];
+            data[i - 1][1] = rows.get(i)[1];
+            data[i - 1][2] = rows.get(i)[2];
+            data[i - 1][3] = rows.get(i)[3];
+        }
+
+        return data;
     }
 }
