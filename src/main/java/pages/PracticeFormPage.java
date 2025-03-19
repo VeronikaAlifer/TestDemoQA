@@ -108,7 +108,6 @@ public class PracticeFormPage {
 
     public boolean isModalFormVisible() {
         try {
-            wait.until(ExpectedConditions.visibilityOfElementLocated(modalForm));
             return driver.findElement(modalForm).isDisplayed();
         } catch (NoSuchElementException | StaleElementReferenceException e) {
             return false;
