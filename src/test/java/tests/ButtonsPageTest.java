@@ -3,12 +3,11 @@ package tests;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 import pages.ButtonsPage;
 
 import java.time.Duration;
+
 
 public class ButtonsPageTest {
     private WebDriver driver;
@@ -18,7 +17,7 @@ public class ButtonsPageTest {
     private static final String DOUBLE_CLICK_MSG = "You have done a double click";
     private static final String RIGHT_CLICK_MSG = "You have done a right click";
 
-    @BeforeTest
+    @BeforeMethod
     public void setUp() {
         driver = new ChromeDriver();
         driver.get(URL);
@@ -36,7 +35,7 @@ public class ButtonsPageTest {
         Assert.assertEquals(actualMessage, DYNAMIC_MSG, "Dynamic click message is incorrect!");
     }
 
-    @Test(description = "Verify the functionality of the 'Double Click Me' button when double-clicked.")
+    @Test( description = "Verify the functionality of the 'Double Click Me' button when double-clicked.")
     public void testDoubleClickButton() {
         buttonsPage.performDoubleClickBtn();
 
@@ -53,7 +52,7 @@ public class ButtonsPageTest {
 
     }
 
-    @AfterTest
+    @AfterMethod
     public void tearDown() {
         if (driver != null) {
             driver.quit();
