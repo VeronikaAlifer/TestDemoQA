@@ -2,12 +2,16 @@ package pages;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import utils.ScrollUtils;
 
+import java.time.Duration;
 import java.util.List;
 
 public class PracticeFormPage {
     private WebDriver driver;
+    private WebDriverWait wait;
     private By firstNameField = By.id("firstName");
     private By lastNameField = By.id("lastName");
     private By userEmailField = By.id("userEmail");
@@ -15,6 +19,7 @@ public class PracticeFormPage {
     private By dateOfBirthInput = By.id("dateOfBirthInput");
     private By subjectsContainer = By.id("subjectsContainer");
     private By submitBtn = By.id("submit");
+    private By genderLabel = By.id("genterWrapper");
     private By genderRadioBtn = By.xpath("//input[@name='gender']");
     private By table = By.xpath("//table[@class='table table-dark table-striped table-bordered table-hover']");
     private By modalForm = By.className("modal-content");
@@ -22,6 +27,7 @@ public class PracticeFormPage {
 
     public PracticeFormPage(WebDriver driver) {
         this.driver = driver;
+        wait = new WebDriverWait(driver, Duration.ofSeconds(10));
     }
 
     public void typeFirstName(String name) {
@@ -60,14 +66,15 @@ public class PracticeFormPage {
     }
 
     public void selectGender(String parameter) {
+        WebElement element = wait.until(ExpectedConditions.elementToBeClickable(genderLabel));
         List<WebElement> genders = driver.findElements(genderRadioBtn);
+        ScrollUtils.scroll(driver, element);
         Actions actions = new Actions(driver);
 
-        for (WebElement element : genders) {
-            String gender = element.getAttribute("value");
+        for (WebElement el : genders) {
+            String gender = el.getAttribute("value");
             if (gender.equals(parameter)) {
-                actions.click(element).perform();
-
+                actions.click(el).perform();
             }
         }
     }
@@ -99,10 +106,11 @@ public class PracticeFormPage {
         };
     }
 
-    public boolean isModalFormVisible(){
+    public boolean isModalFormVisible() {
         try {
+            wait.until(ExpectedConditions.visibilityOfElementLocated(modalForm));
             return driver.findElement(modalForm).isDisplayed();
-        }catch (NoSuchElementException | StaleElementReferenceException e){
+        } catch (NoSuchElementException | StaleElementReferenceException e) {
             return false;
         }
     }
