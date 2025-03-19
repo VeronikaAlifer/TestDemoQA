@@ -7,6 +7,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import utils.ScrollUtils;
 
 import java.time.Duration;
 
@@ -21,17 +22,19 @@ public class RadioButtonPage {
 
     public RadioButtonPage(WebDriver driver) {
         this.driver = driver;
-        wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait = new WebDriverWait(driver, Duration.ofSeconds(20));
     }
 
     public void openPage() {
         driver.get("https://demoqa.com/radio-button");
-
+        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(5));
     }
 
     public void selectYesRadioBtn() {
-        driver.findElement(yesRadioBtn).click();
-
+        wait.until(ExpectedConditions.elementToBeClickable(yesRadioBtn));
+        WebElement element = driver.findElement(yesRadioBtn);
+        ScrollUtils.scroll(driver, element);
+        element.click();
     }
 
     public void selectImpressiveRadioBtn() {

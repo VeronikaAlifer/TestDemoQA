@@ -1,44 +1,59 @@
 package tests;
 
-import org.checkerframework.checker.units.qual.A;
-import org.checkerframework.checker.units.qual.C;
-import org.openqa.selenium.NoSuchElementException;
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
+import org.testng.annotations.*;
 import pages.RadioButtonPage;
+import utils.ExtentReportManager;
 
+import java.lang.reflect.Method;
 import java.time.Duration;
 
 public class RadioButtonPageTest {
-    WebDriver driver;
-    RadioButtonPage radioButtonPage;
+    private WebDriver driver;
+    private RadioButtonPage radioButtonPage;
+    private ExtentReports reports;
+    private ExtentTest log;
 
-    @BeforeClass
-    public void setUp() {
+
+    @BeforeTest
+    public void setUpReports() {
+        reports = ExtentReportManager.getInstance();
+    }
+
+    @BeforeMethod
+    public void setUp(Method method) {
+        log = reports.createTest(method.getName());
+        log.info("Initializing webDriver...");
         driver = new ChromeDriver();
         driver.manage().window().maximize();
-        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(5));
 
         radioButtonPage = new RadioButtonPage(driver);
+        log.info("Opening radio button page.");
         radioButtonPage.openPage();
     }
 
     @Test
     public void testSelectingYesRadioBtn() {
-        Assert.assertFalse(radioButtonPage.isElementDisplayed(radioButtonPage.getResultTextElement()), "Result text should not be displayed before selecting any radio button.");
+        log.info("Checking visibility of required text.");
+        Assert.assertFalse(radioButtonPage.isElementDisplayed(radioButtonPage.getResultTextElement()),
+                "Result text should not be displayed before selecting any radio button.");
 
+        log.info("Selecting 'Yes' radio button.");
         radioButtonPage.selectYesRadioBtn();
-        Assert.assertTrue(radioButtonPage.isYesRadioBtnSelected(), "The 'Yes' radio button should be selected after clicking it.");
 
+        log.info("Checking that the 'Yes' radio button was selected.");
+        Assert.assertTrue(radioButtonPage.isYesRadioBtnSelected(),
+                "The 'Yes' radio button should be selected after clicking it.");
+
+        log.info("Checking visibility of required text.");
         String expectedText = "Yes";
         String actualText = radioButtonPage.getResultText();
         Assert.assertEquals(actualText, expectedText, "The actual text does not match with expected text");
-        driver.quit();
     }
 
     @Test
@@ -53,4 +68,15 @@ public class RadioButtonPageTest {
         Assert.assertEquals(actualText, expectedText, "The actual text does not match with expected text");
     }
 
+    @AfterMethod
+    public void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+
+    @AfterTest
+    public void tearDownReports() {
+        reports.flush();
+    }
 }
