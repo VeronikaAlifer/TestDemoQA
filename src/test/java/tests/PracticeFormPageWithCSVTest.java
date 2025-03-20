@@ -37,14 +37,16 @@ public class PracticeFormPageWithCSVTest {
 
     @BeforeMethod
     public void setUp(Method method) throws IOException, CsvException {
-        log = reports.createTest(method.getName());
+        log = reports.createTest(method.getDeclaringClass().getSimpleName() +" - "+ method.getName())
+                .assignCategory(method.getDeclaringClass().getSimpleName());
+
         log.info("Initializing WebDriver...");
         driver = new ChromeDriver();
 
         log.info("Maximizing window and setting timeouts...");
         driver.manage().window().maximize();
-        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(10));
-        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
+        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(5));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
 
         formPage = new PracticeFormPage(driver);
 
@@ -118,7 +120,7 @@ public class PracticeFormPageWithCSVTest {
     public void tearDown(ITestResult result) {
         try {
             if (result.getStatus() == ITestResult.SUCCESS) {
-                log.pass("Test pass successfully");
+                log.pass("Test passed successfully!");
             } else if (result.getStatus() == ITestResult.FAILURE) {
                 log.fail(result.getThrowable().getMessage());
             }

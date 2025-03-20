@@ -65,9 +65,13 @@ public class TextBoxPage {
         typePermanentAddress(permanentAddress);
     }
 
+//    public List<WebElement> getOutputData (){
+//       WebElement element = driver.findElement(By.xpath("//div[@class='border col-md-12 col-sm-12']/p"));
+//        return  element.findElements(By.tagName("p"));
+//    }
+
     public List<WebElement> getOutputData (){
-       WebElement element = driver.findElement(By.xpath("//div[@class='border col-md-12 col-sm-12']"));
-        return  element.findElements(By.tagName("p"));
+        return driver.findElements(By.xpath("//div[@class='border col-md-12 col-sm-12']/p"));
     }
     public WebElement getSubmitBtnElement () {
         return driver.findElement(submitBtn);
