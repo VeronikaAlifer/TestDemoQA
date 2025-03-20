@@ -38,7 +38,10 @@ public class RadioButtonPage {
     }
 
     public void selectImpressiveRadioBtn() {
-        wait.until(ExpectedConditions.elementToBeClickable(driver.findElement(impressiveRadioBtn))).click();
+        wait.until(ExpectedConditions.elementToBeClickable(impressiveRadioBtn));
+        WebElement element = driver.findElement(impressiveRadioBtn);
+        ScrollUtils.scroll(driver, element);
+        element.click();
     }
 
     public void selectNoRadio() {

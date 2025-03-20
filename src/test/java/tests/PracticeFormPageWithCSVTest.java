@@ -37,7 +37,7 @@ public class PracticeFormPageWithCSVTest {
 
     @BeforeMethod
     public void setUp(Method method) throws IOException, CsvException {
-        log = reports.createTest(method.getDeclaringClass().getSimpleName() +" - "+ method.getName())
+        log = reports.createTest(method.getDeclaringClass().getSimpleName() + " - " + method.getName())
                 .assignCategory(method.getDeclaringClass().getSimpleName());
 
         log.info("Initializing WebDriver...");
@@ -49,7 +49,6 @@ public class PracticeFormPageWithCSVTest {
         driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(5));
 
         formPage = new PracticeFormPage(driver);
-
     }
 
     @Test

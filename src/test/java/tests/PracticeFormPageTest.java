@@ -12,8 +12,8 @@ import pages.RegistrationFormModalForm;
 import utils.ExtentReportManager;
 
 import java.lang.reflect.Method;
+import java.time.Duration;
 import java.util.HashMap;
-import java.util.concurrent.TimeUnit;
 
 public class PracticeFormPageTest {
 
@@ -32,12 +32,14 @@ public class PracticeFormPageTest {
 
     @BeforeMethod
     public void setUp(Method method) {
-        log = reports.createTest(method.getName());
+        log = reports.createTest(method.getDeclaringClass().getSimpleName() + " - " + method.getName())
+                .assignCategory(method.getDeclaringClass().getSimpleName());
+
         log.info("Initializing WevDriver ...");
         driver = new ChromeDriver();
 
         log.info("Maximizing window and setting timeouts...");
-        driver.manage().timeouts().pageLoadTimeout(5, TimeUnit.SECONDS);
+        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(5));
         driver.manage().window().maximize();
 
         log.info("Opening the automation practice form page.");
