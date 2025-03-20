@@ -5,6 +5,7 @@ import com.aventstack.extentreports.ExtentTest;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.Assert;
+import org.testng.ITestResult;
 import org.testng.annotations.*;
 import pages.RadioButtonPage;
 import utils.ExtentReportManager;
@@ -58,20 +59,36 @@ public class RadioButtonPageTest {
 
     @Test
     public void testSelectingImpressiveRadioBtn() {
-        Assert.assertFalse(radioButtonPage.isElementDisplayed(radioButtonPage.getResultTextElement()), "Result text should not be displayed before selecting any radio button.");
+        log.info("Verifying that the text is not displayed before selecting any radio button.");
+        Assert.assertFalse(radioButtonPage.isElementDisplayed(radioButtonPage.getResultTextElement()),
+                "Result text should not be displayed before selecting any radio button.");
 
+        log.info("Selecting 'Impressive' radio button.");
         radioButtonPage.selectImpressiveRadioBtn();
+
+        log.info("Checking that the 'Impressive' radio button was selected.");
         Assert.assertTrue(radioButtonPage.isImpressiveRadioBtnSelected(), "The 'Impressive' radio button should be selected after clicking it.");
 
+        log.info("Checking visibility of required text.");
         String expectedText = "Impressive";
         String actualText = radioButtonPage.getResultText();
         Assert.assertEquals(actualText, expectedText, "The actual text does not match with expected text");
     }
 
     @AfterMethod
-    public void tearDown() {
-        if (driver != null) {
-            driver.quit();
+    public void tearDown(ITestResult result) {
+        try {
+            if(result.getStatus() == ITestResult.SUCCESS){
+                log.pass("Test passed successfully!");
+            }else if (result.getStatus() == ITestResult.SKIP){
+                log.skip("Test was skipped!");
+            }else if(result.getStatus() == ITestResult.FAILURE){
+                log.fail(result.getThrowable().getMessage());
+            }
+        }finally {
+            if (driver != null) {
+                driver.quit();
+            }
         }
     }
 
