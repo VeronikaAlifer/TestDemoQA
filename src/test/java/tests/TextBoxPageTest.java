@@ -41,9 +41,11 @@ public class TextBoxPageTest {
         String testName = method.getName();
         Test testAnnotation = method.getAnnotation(Test.class);
         String description = (testAnnotation != null) ? testAnnotation.description() : "no description";
+
         log = reports.createTest(className + " - " + testName)
                 .assignCategory(className)
                 .info("<b>"+description+"</b>");
+
         log.info("Initializing WebDriver..");
         driver = new ChromeDriver();
 
@@ -99,7 +101,6 @@ public class TextBoxPageTest {
 
         log.info("Verifying that the Output data form is empty.");
         Assert.assertTrue(textBoxPage.getOutputData().isEmpty(), "Output data form must be empty!");
-
     }
 
     @Test(description = "Verifying that Output field is empty after form submission.")

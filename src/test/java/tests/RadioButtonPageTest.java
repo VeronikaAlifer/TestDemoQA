@@ -2,7 +2,6 @@ package tests;
 
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
-
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.Assert;
@@ -11,7 +10,6 @@ import pages.RadioButtonPage;
 import utils.ExtentReportManager;
 
 import java.lang.reflect.Method;
-import java.time.Duration;
 
 public class RadioButtonPageTest {
     private WebDriver driver;
@@ -27,7 +25,9 @@ public class RadioButtonPageTest {
 
     @BeforeMethod
     public void setUp(Method method) {
-        log = reports.createTest(method.getName());
+        log = reports.createTest(method.getDeclaringClass().getSimpleName() + " - " + method.getName())
+                .assignCategory(method.getDeclaringClass().getSimpleName());
+
         log.info("Initializing webDriver...");
         driver = new ChromeDriver();
         driver.manage().window().maximize();
