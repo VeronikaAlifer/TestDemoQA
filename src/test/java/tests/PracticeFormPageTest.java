@@ -2,6 +2,8 @@ package tests;
 
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.Assert;
@@ -94,7 +96,10 @@ public class PracticeFormPageTest {
             if (result.getStatus() == ITestResult.SUCCESS) {
                 log.pass("The test passed successfully.");
             } else if (result.getStatus() == ITestResult.FAILURE) {
-                log.fail(result.getThrowable().getMessage());
+                log.fail(result.getThrowable().getMessage())
+                        .addScreenCaptureFromBase64String(getBase64Screenshot());
+            }else if(result.getStatus() == ITestResult.SKIP){
+                log.skip("Test was skipped!!!");
             }
         } finally {
             if (driver != null) {
@@ -106,5 +111,9 @@ public class PracticeFormPageTest {
     @AfterClass
     public void tearDownReports() {
         reports.flush();
+    }
+
+    private String getBase64Screenshot(){
+        return ((TakesScreenshot)driver).getScreenshotAs(OutputType.BASE64);
     }
 }

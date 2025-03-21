@@ -2,6 +2,8 @@ package tests;
 
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -123,7 +125,8 @@ public class TextBoxPageTest {
             } else if (result.getStatus() == ITestResult.SKIP) {
                 log.skip("Test was skipped");
             } else if (result.getStatus() == ITestResult.FAILURE) {
-                log.fail(result.getThrowable().getMessage());
+                log.fail(result.getThrowable().getMessage())
+                        .addScreenCaptureFromBase64String(getBase64Screenshot());
             }
         } finally {
             if (driver != null) {
@@ -135,5 +138,9 @@ public class TextBoxPageTest {
     @AfterClass
     public void tearDownReports() {
         reports.flush();
+    }
+
+    public String getBase64Screenshot(){
+        return ((TakesScreenshot)driver).getScreenshotAs(OutputType.BASE64);
     }
 }
