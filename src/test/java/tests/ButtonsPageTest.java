@@ -22,11 +22,11 @@ public class ButtonsPageTest {
     private ButtonsPage buttonsPage;
     private ExtentReports reports;
     private ExtentTest log;
-    private ThreadLocal<ExtentTest> test = new ThreadLocal<>();
+    private final ThreadLocal<ExtentTest> test = new ThreadLocal<>();
     private static final String URL = "https://demoqa.com/buttons";
     private static final String DYNAMIC_MSG = "You have done a dynamic click";
     private static final String DOUBLE_CLICK_MSG = "You have done a double click";
-    private static final String RIGHT_CLICK_MSG = "You have done a right click11";
+    private static final String RIGHT_CLICK_MSG = "You have done a right click";
 
     @BeforeClass
     public void setUpReports() {
@@ -34,7 +34,7 @@ public class ButtonsPageTest {
     }
 
     @BeforeMethod
-    public void setUp(Method method) throws IOException {
+    public void setUp(Method method) {
 
         String className = method.getDeclaringClass().getSimpleName();
         String testName = method.getName();
@@ -97,7 +97,8 @@ public class ButtonsPageTest {
             } else if (result.getStatus() == ITestResult.SKIP) {
                 log.skip("Test was skipped!");
             } else if (result.getStatus() == ITestResult.FAILURE) {
-                log.fail("Test failed!!!").addScreenCaptureFromBase64String(getBase64Screenshot());
+                log.fail(result.getThrowable().getMessage())
+                        .addScreenCaptureFromBase64String(getBase64Screenshot());
             }
         } finally {
             if (driver != null) {
