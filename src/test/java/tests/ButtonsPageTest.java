@@ -19,6 +19,7 @@ public class ButtonsPageTest {
     private ButtonsPage buttonsPage;
     private ExtentReports reports;
     private ExtentTest log;
+    private ThreadLocal<ExtentTest> test = new ThreadLocal<>();
     private static final String URL = "https://demoqa.com/buttons";
     private static final String DYNAMIC_MSG = "You have done a dynamic click";
     private static final String DOUBLE_CLICK_MSG = "You have done a double click";
@@ -39,6 +40,7 @@ public class ButtonsPageTest {
         log = reports.createTest(className + " - " + testName)
                 .assignCategory(className)
                 .info(description);
+        test.set(log);
 
         log.info("Initializing WebDriver ...");
         driver = new ChromeDriver();
