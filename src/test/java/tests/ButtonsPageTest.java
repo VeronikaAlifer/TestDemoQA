@@ -2,6 +2,8 @@ package tests;
 
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.Assert;
@@ -10,6 +12,7 @@ import org.testng.annotations.*;
 import pages.ButtonsPage;
 import utils.ExtentReportManager;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
 import java.time.Duration;
 
@@ -23,7 +26,7 @@ public class ButtonsPageTest {
     private static final String URL = "https://demoqa.com/buttons";
     private static final String DYNAMIC_MSG = "You have done a dynamic click";
     private static final String DOUBLE_CLICK_MSG = "You have done a double click";
-    private static final String RIGHT_CLICK_MSG = "You have done a right click";
+    private static final String RIGHT_CLICK_MSG = "You have done a right click11";
 
     @BeforeClass
     public void setUpReports() {
@@ -31,7 +34,7 @@ public class ButtonsPageTest {
     }
 
     @BeforeMethod
-    public void setUp(Method method) {
+    public void setUp(Method method) throws IOException {
 
         String className = method.getDeclaringClass().getSimpleName();
         String testName = method.getName();
@@ -84,7 +87,6 @@ public class ButtonsPageTest {
         log.info("Verifying the right-click success message.");
         String actualMessage = buttonsPage.getRightClickMessage();
         Assert.assertEquals(actualMessage, RIGHT_CLICK_MSG, "Right click message is incorrect!");
-
     }
 
     @AfterMethod
@@ -95,7 +97,7 @@ public class ButtonsPageTest {
             } else if (result.getStatus() == ITestResult.SKIP) {
                 log.skip("Test was skipped!");
             } else if (result.getStatus() == ITestResult.FAILURE) {
-                log.fail(result.getThrowable().getMessage());
+                log.fail("Test failed!!!").addScreenCaptureFromBase64String(getBase64Screenshot());
             }
         } finally {
             if (driver != null) {
@@ -107,5 +109,9 @@ public class ButtonsPageTest {
     @AfterClass
     public void tearDownReports() {
         reports.flush();
+    }
+
+    private String getBase64Screenshot() {
+        return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BASE64);
     }
 }
