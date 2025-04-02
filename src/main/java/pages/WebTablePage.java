@@ -2,14 +2,15 @@ package pages;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
-
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class WebTablePage {
     private WebDriver driver;
@@ -38,7 +39,7 @@ public class WebTablePage {
         return driver.findElement(grid).isDisplayed();
     }
 
-    public List<WebElement> getGritColumn() {
+    public List<WebElement> getGridColumn() {
         WebElement gridElement = driver.findElement(grid);
         return gridElement.findElements(By.xpath("//div[@role='columnheader']"));
     }
@@ -52,22 +53,24 @@ public class WebTablePage {
         return modalForm;
     }
 
-    public boolean isRecordPresent (Map<String, String> data)
-    {
+    public boolean isRecordPresent(Map<String, String> data) {
         WebElement gridElement = driver.findElement(grid);
 
-        List <WebElement> rows =  gridElement.findElements(By.className("rt-tr-group"));
+        List<WebElement> rows = gridElement.findElements(By.className("rt-tr-group"));
 
-        for (int i = 0; i < rows.size(); i++) {
-            WebElement row = rows.get(i);
-
+        for (WebElement row : rows) {
             List<WebElement> cells = row.findElements(By.className("rt-td"));
-           
 
+            if (data.get("firstName").equals(cells.getFirst().getText())) {
+                List<String> texts = cells.stream()
+                        .map(WebElement::getText)
+                        .collect(Collectors.toList());
+                texts.removeLast();
+
+                return texts.equals(data.values().stream().toList());
+            }
         }
 
         return false;
     }
-
-
 }
