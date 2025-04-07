@@ -14,7 +14,7 @@ public class RegistrationFormModalForm {
     private WebDriver driver;
     private WebDriverWait wait;
     private By modalForm = By.className("modal-content");
-    private By title = By.id("registration-form-modal");
+    private By title = By.id("example-modal-sizes-title-lg");
     private By submitBtn = By.id("submit");
     private By userForm = By.id("userForm");
 
