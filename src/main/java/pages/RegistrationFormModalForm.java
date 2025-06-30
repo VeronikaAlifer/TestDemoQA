@@ -42,17 +42,4 @@ public class RegistrationFormModalForm {
         driver.findElement(submitBtn).click();
     }
 
-    public void fillRegistrationForm(Map<String, String> formData) {
-        WebElement form = wait.until(ExpectedConditions.visibilityOfElementLocated(userForm));
-
-        for (Map.Entry<String, String> entry : formData.entrySet()) {
-            By inputField = By.id(entry.getKey());
-            WebElement element = form.findElement(inputField);
-            element.clear();
-            element.sendKeys(entry.getValue());
-        }
-
-        clickSubmitBtn();
-        wait.until(ExpectedConditions.invisibilityOfElementLocated(modalForm));
-    }
 }
