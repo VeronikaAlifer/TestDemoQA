@@ -2,10 +2,11 @@ package tests;
 
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
-import com.opencsv.bean.CsvToBean;
-import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.exceptions.CsvException;
-import org.openqa.selenium.*;
+import io.github.bonigarcia.wdm.WebDriverManager;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.Assert;
 import org.testng.ITestResult;
@@ -16,10 +17,7 @@ import testdata.Person;
 import utils.CSVReader;
 import utils.ExtentReportManager;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
 import java.lang.reflect.Method;
 import java.time.Duration;
 import java.util.Iterator;
@@ -46,6 +44,7 @@ public class WebTablePageWithCSVTest {
                 .assignCategory(className);
 
         log.info("Initializing webDriver....");
+        WebDriverManager.chromedriver().setup();
         driver = new ChromeDriver();
         webTablePage = new WebTablePage(driver);
         driver.manage().window().maximize();
@@ -111,7 +110,7 @@ public class WebTablePageWithCSVTest {
         return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BASE64);
     }
 
-    private void sillAnsSubmitRegistrationForm(List<Person> people){
+    private void sillAnsSubmitRegistrationForm(List<Person> people) {
 
         for (Iterator<Person> iterator = people.iterator(); iterator.hasNext(); ) {
 
