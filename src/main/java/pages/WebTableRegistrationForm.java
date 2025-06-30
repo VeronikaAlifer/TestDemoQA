@@ -1,13 +1,12 @@
 package pages;
 
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import testdata.Person;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
 public class WebTableRegistrationForm {
@@ -23,6 +22,7 @@ public class WebTableRegistrationForm {
     private By department = By.id("department");
     private By modalForm = By.className("modal-content");
     private By registrationFormTitle = By.id("registration-form-modal");
+    private By userForm = By.id("userForm");
 
     public WebTableRegistrationForm(WebDriver driver) {
         this.driver = driver;
@@ -39,8 +39,8 @@ public class WebTableRegistrationForm {
     }
 
 
-    public void enterLastName(String firstName) {
-        driver.findElement(this.lastName).sendKeys(firstName);
+    public void enterLastName(String lastName) {
+        driver.findElement(this.lastName).sendKeys(lastName);
     }
 
 
@@ -60,7 +60,7 @@ public class WebTableRegistrationForm {
         driver.findElement(this.department).sendKeys(department);
     }
 
-    public void fillAnsSubmitForm(Person person) {
+    public void fillAndSubmitForm(Person person) {
         enterFirstName(person.getFirstName());
         enterLastName(person.getLastName());
         enterEmail(person.getEmail());
@@ -86,14 +86,34 @@ public class WebTableRegistrationForm {
 
     public boolean isDisplayed() {
         try {
-
             return wait.until(ExpectedConditions.visibilityOfElementLocated(modalForm)).isDisplayed();
-        } catch (NullPointerException e) {
+        } catch (NoSuchElementException | TimeoutException e) {
             return false;
         }
     }
 
     public String getTitle() {
         return driver.findElement(registrationFormTitle).getText();
+    }
+
+    public boolean isUserFormValidated() {
+        try {
+            WebElement element = driver.findElement(userForm);
+            String classAtr = element.getAttribute("class");
+            return classAtr != null && classAtr.contains("was-validated");
+        } catch (NoSuchElementException e) {
+            return false;
+        }
+    }
+
+    public boolean areFormFieldsEmpty() {
+        List<WebElement> inputs = driver.findElements(By.xpath("//form[@id = 'userForm']//input"));
+        for (WebElement webElement : inputs) {
+            String value = webElement.getAttribute("value");
+            if (value != null && !value.isEmpty()) {
+                return false;
+            }
+        }
+        return true;
     }
 }

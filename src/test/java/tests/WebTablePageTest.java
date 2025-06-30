@@ -178,7 +178,7 @@ public class WebTablePageTest {
 
         log.info("Adding new record to the table.");
         Person expectedPerson = new Person("Lierra", "Mega", "lierra@example.com", "45", "20000", "Compliance");
-        modalForm.fillAnsSubmitForm(expectedPerson);
+        modalForm.fillAndSubmitForm(expectedPerson);
 
         log.info("Verifying the new record appears in the web table.");
         List<WebElement> actualRecords = webTablePage.getRecordsList();
@@ -196,6 +196,33 @@ public class WebTablePageTest {
         newPerson.setSalary(cells.get(4).getText());
         newPerson.setDepartment(cells.get(5).getText());
         Assert.assertEquals(newPerson, expectedPerson, "The new record was not found in the table.");
+    }
+
+    @Test(description = "TC_003 – Добавление записи с пустыми полями")
+    public void verifyAddingEmptyFields() {
+        log.info("Verify that the table is present.");
+        boolean isTablePresent = webTablePage.isGridDisplayed();
+        Assert.assertTrue(isTablePresent, "The table isn't present, but it should be.");
+
+        log.info("Clicking on the button 'Add'");
+        webTablePage.pressOnAddBtn();
+
+        log.info("Verify that the modal form is visible and is not validated.");
+        modalForm = webTablePage.getRegistrationForm();
+        boolean isModalFormResent = modalForm.isDisplayed();
+        Assert.assertTrue(isModalFormResent, "Expected the modal form to be visible after clicking 'Add'.");
+
+        boolean isValidated = modalForm.isUserFormValidated();
+        Assert.assertFalse(isValidated, "Expected form to be not validated before submission.");
+
+        log.info("Clicking on the button 'Submit'");
+        modalForm.submitForm();
+        isValidated = modalForm.isUserFormValidated();
+        isModalFormResent = modalForm.isDisplayed();
+
+        Assert.assertTrue(isValidated, "Expected form to be validated after submitting empty fields.");
+        Assert.assertTrue(isModalFormResent, "Expected modal form to remain visible after validation.");
+        Assert.assertTrue(modalForm.areFormFieldsEmpty(), "Expected modal forms fields must be empty");
     }
 
     /////////////////////////old test
