@@ -2,9 +2,8 @@ package pages;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
-import org.openqa.selenium.By;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -42,14 +41,20 @@ public class WebTablePage {
         return driver.findElement(grid).isDisplayed();
     }
 
-    public List<WebElement> getGridColumn() {
+    public List<String> getGridColumnHeaders() {
         WebElement gridElement = driver.findElement(grid);
-        return gridElement.findElements(By.xpath("//div[@role='columnheader']"));
+//        gridElement.findElements(By.xpath("//div[@role='columnheader']"));
+        List<WebElement> headerElements = gridElement.findElements(By.className("rt-resizable-header-content"));
+        List<String> headers = new ArrayList<>();
+
+        for (int i = 0; i < headerElements.size(); i++) {
+            headers.add(i, headerElements.get(i).getText());
+        }
+        return headers;
     }
 
     public void pressOnAddBtn() {
-        wait.until(ExpectedConditions.elementToBeClickable(addNewRecordButton));
-        driver.findElement(addNewRecordButton).click();
+        wait.until(ExpectedConditions.elementToBeClickable(addNewRecordButton)).click();
     }
 
     public WebTableRegistrationForm getRegistrationForm() {
@@ -81,45 +86,7 @@ public class WebTablePage {
         return driver.findElements(records);
     }
 
-    public boolean isRecordPresent() throws IOException, CsvException {
-        CSVReader reader = new CSVReader(new FileReader("src/test/resources/person_test_data.csv"));
-        List<String[]> list = reader.readAll();
-        List<String[]> recordList = new LinkedList<>();
-
-        List<WebElement> rows = getRecordsList();
-
-        for (int index = 3; index < rows.size(); index++) {
-            WebElement row = rows.get(index);
-            List<WebElement> cells = row.findElements(By.className("rt-td"));
-            String[] text = new String[6];
-
-            for (int i = 0; i < cells.size() - 1; i++) {
-                text[i] = cells.get(i).getText().trim();
-            }
-            recordList.add(text);
-        }
-
-        list.removeFirst();
-
-        boolean isEqual = true;
-
-        for (int i = 0; i < list.size(); i++) {
-            String[] csvRecord = list.get(i);
-            String[] webRecord = recordList.get(i);
-
-            Set<String> list1 = new HashSet<>(Arrays.asList(csvRecord));
-            Set<String> list2 = new HashSet<>(Arrays.asList(webRecord));
-
-            if (!list1.equals(list2)) {
-                isEqual = false;
-                break;
-            }
-        }
-        return isEqual;
-    }
-
-
-    public boolean isNewUserPresent(String userFirstName, String userLastName) {
+    public boolean isUserPresent(String userFirstName, String userLastName) {
         List<WebElement> records = getRecordsList();
         boolean isTrue = false;
         for (WebElement record : records) {
@@ -135,4 +102,85 @@ public class WebTablePage {
         return isTrue;
     }
 
+    public WebTableRegistrationForm performEditAction(String firstName, String lastName) {
+
+        String xpath = String.format(
+                "//div[contains(@class,'rt-tr')" +
+                        "  and .//div[normalize-space(.)='%s']" +
+                        "  and .//div[normalize-space(.)='%s']" +
+                        "]//span[@title='Edit']",
+                firstName, lastName
+        );
+        try {
+            WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(xpath)));
+            element.click();
+            return registrationForm;
+        } catch (TimeoutException e) {
+            throw new NoSuchElementException(
+                    String.format("Edit button not found for '%s %s'", firstName, lastName), e);
+        }
+    }
+
+    public String getColumnDataByName(String firstName, String lastName, String columnName) {
+        List<String> headers = getGridColumnHeaders();
+        int salaryColumnIndex = headers.indexOf(columnName);
+        int firstNameColumnIndex = headers.indexOf("First Name");
+        int lastNameColumnIndex = headers.indexOf("Last Name");
+
+        List<WebElement> list = getRecordsList();
+        List<WebElement> cells;
+        for (int i = 0; i < list.size(); i++) {
+            cells = list.get(i).findElements(By.xpath("//div[@role ='gridcell']"));
+            String firstValue = cells.get(firstNameColumnIndex).getText();
+            String secondValue = cells.get(lastNameColumnIndex).getText();
+
+            if (firstValue.equals(firstName) && secondValue.equals(lastName)) {
+                return cells.get(salaryColumnIndex).getText();
+            }
+        }
+        return null;
+    }
+
+    public List<WebElement> getRows() {
+        return driver.findElements(By.xpath(".//div[@class = 'rt-tr-group']"));
+    }
+
+    public WebElement getRow(int rowIndex) {
+        List<WebElement> rows = getRows();
+        if (rowIndex >= rows.size()) {
+            throw new IndexOutOfBoundsException("Row index out of bounds");
+        }
+        return rows.get(rowIndex);
+    }
+
+    public WebElement getCell(int rowIndex, int cellIndex) {
+        WebElement row = getRow(rowIndex);
+        List<WebElement> cells = getCellsFromRow(row);
+       return cells.get(cellIndex);
+    }
+
+    public List<WebElement> getCellsFromRow(WebElement row) {
+        return row.findElements(By.xpath(".//div[@class = 'rt-td']"));
+    }
+
+    public String geCellText(int rowIndex, int cellIndex) {
+        WebElement row = getRow(rowIndex);
+        List<WebElement> cells = getCellsFromRow(row);
+        if (cellIndex >= cells.size()) {
+            throw new IndexOutOfBoundsException("Column index out of bounds");
+        }
+        return  cells.get(cellIndex).getText();
+    }
+
+    public void deleteRowByName(String firstName, String lastName) {
+        String xpath = String.format(
+                "//div[contains(@class,'rt-tr')" +
+                        "  and .//div[normalize-space(.)='%s']" +
+                        "  and .//div[normalize-space(.)='%s']" +
+                        "]//span[@title='Delete']",
+                firstName, lastName
+        );
+
+        driver.findElement(By.xpath(xpath)).click();
+    }
 }

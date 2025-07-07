@@ -52,8 +52,11 @@ public class WebTableRegistrationForm {
         driver.findElement(this.age).sendKeys(age);
     }
 
-    public void enterSalary(String salary) {
-        driver.findElement(this.salary).sendKeys(salary);
+    public WebTableRegistrationForm enterSalary(String salary) {
+       WebElement element = driver.findElement(this.salary);
+       element.clear();
+       element.sendKeys(salary);
+       return this;
     }
 
     public void enterDepartment(String department) {

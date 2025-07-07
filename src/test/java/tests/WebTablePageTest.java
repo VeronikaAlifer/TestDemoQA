@@ -3,15 +3,12 @@ package tests;
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.checkerframework.checker.units.qual.A;
-import org.checkerframework.framework.qual.DefaultQualifier;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.Assert;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
 import org.testng.asserts.SoftAssert;
-import pages.RegistrationFormModalForm;
 import pages.WebTablePage;
 import pages.WebTableRegistrationForm;
 import testdata.Person;
@@ -57,12 +54,12 @@ public class WebTablePageTest {
         Assert.assertTrue(isTableDisplayed, "The grid is not displayed but must be.");
 
         log.info("Verify list size match.");
-        List<WebElement> actualColumnsHeaders = webTablePage.getGridColumn();
+        List<String> actualColumnsHeaders = webTablePage.getGridColumnHeaders();
         Assert.assertEquals(columnHeaders.size(), actualColumnsHeaders.size(), "The number of columns does not match the expected number.");
 
         log.info("Verify column header.");
         for (int i = 0; i < columnHeaders.size(); i++) {
-            String actualValue = actualColumnsHeaders.get(i).getText();
+            String actualValue = actualColumnsHeaders.get(i);
             String expectedValue = columnHeaders.get(i);
             Assert.assertEquals(actualValue, expectedValue, "Actual value does not match expected value.");
         }
@@ -128,7 +125,6 @@ public class WebTablePageTest {
             }
         }
         softAssert.assertAll();
-
     }
 
     @Test(description = "TC_001 (b) – Отображение таблицы после загрузки страницы.POJO")
@@ -209,8 +205,8 @@ public class WebTablePageTest {
 
         log.info("Verify that the modal form is visible and is not validated.");
         modalForm = webTablePage.getRegistrationForm();
-        boolean isModalFormResent = modalForm.isDisplayed();
-        Assert.assertTrue(isModalFormResent, "Expected the modal form to be visible after clicking 'Add'.");
+        boolean isModalFormPresent = modalForm.isDisplayed();
+        Assert.assertTrue(isModalFormPresent, "Expected the modal form to be visible after clicking 'Add'.");
 
         boolean isValidated = modalForm.isUserFormValidated();
         Assert.assertFalse(isValidated, "Expected form to be not validated before submission.");
@@ -218,11 +214,52 @@ public class WebTablePageTest {
         log.info("Clicking on the button 'Submit'");
         modalForm.submitForm();
         isValidated = modalForm.isUserFormValidated();
-        isModalFormResent = modalForm.isDisplayed();
+        isModalFormPresent = modalForm.isDisplayed();
 
         Assert.assertTrue(isValidated, "Expected form to be validated after submitting empty fields.");
-        Assert.assertTrue(isModalFormResent, "Expected modal form to remain visible after validation.");
+        Assert.assertTrue(isModalFormPresent, "Expected modal form to remain visible after validation.");
         Assert.assertTrue(modalForm.areFormFieldsEmpty(), "Expected modal forms fields must be empty");
+    }
+
+    @Test(description = "TC_005 – Успешное редактирование записи")
+    public void testEditSalaryField() {
+        String newSalary = "88000";
+        final String FIRST_NAME = "Cierra";
+        final String LAST_NAME = "Vega";
+        String oldSalary = webTablePage.getColumnDataByName(FIRST_NAME, LAST_NAME, "Salary");
+
+        log.info(String.format("Open Edit modal for {} {}", FIRST_NAME, LAST_NAME));
+        modalForm = webTablePage.performEditAction(FIRST_NAME, LAST_NAME);
+
+        log.info("Update salary.");
+        modalForm.enterSalary(newSalary).submitForm();
+
+        log.info("Verify that the main page is opened.");
+        boolean isManePageDisplayed = webTablePage.isGridDisplayed();
+        Assert.assertTrue(isManePageDisplayed, "The table isn't present, but it should be.");
+
+        log.info("Verify that the salary value is changed.");
+        Assert.assertNotEquals(oldSalary, newSalary, "The salary doesn't change, but it should be.");
+
+        String actualSalary = webTablePage.getColumnDataByName(FIRST_NAME, LAST_NAME, "Salary");
+        Assert.assertEquals(actualSalary, newSalary, "The new salary doesn't match with  actual salary.");
+    }
+
+    @Test(description = "TC_006 – Удаление записи из таблицы")
+    public void testDeleteRow() {
+        String firstName = "Alden";
+        String lastName = "Cantrell";
+        boolean isUserPresent = webTablePage.isUserPresent(firstName, lastName);
+        Assert.assertTrue(isUserPresent, String.format("User %s %s is not present, but it should be.",firstName, lastName));
+
+        log.info("Click on 'Delete' button.");
+        webTablePage.deleteRowByName(firstName, lastName);
+
+        log.info(String.format("Verify that user %s %s is not present in the grid.", firstName, lastName));
+        isUserPresent = webTablePage.isUserPresent(firstName, lastName);
+        Assert.assertFalse(isUserPresent,
+                String.format("The user %s %s present on the grid, but it should nor be.", firstName, lastName));
+
     }
 
     /////////////////////////old test
@@ -243,14 +280,14 @@ public class WebTablePageTest {
     @Test
     public void verifyWebTableColumns() {
         List<String> expectedValue = List.of("First Name", "Last Name", "Age", "Email", "Salary", "Department", "Action");
-        List<WebElement> list = webTablePage.getGridColumn();
+        List<String> list = webTablePage.getGridColumnHeaders();
 
         log.info("Verify list size match.");
         Assert.assertEquals(list.size(), expectedValue.size(), "The number of columns does not match the expected number.");
 
         log.info("Verifying column headers.");
         for (int i = 0; i < list.size(); i++) {
-            String actualValue = list.get(i).getText().trim();
+            String actualValue = list.get(i).trim();
             String expectedResult = expectedValue.get(i);
 
             Assert.assertEquals(actualValue, expectedResult, "Actual value does not match expected value.");

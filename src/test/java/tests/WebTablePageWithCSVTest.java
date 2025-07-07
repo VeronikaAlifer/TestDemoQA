@@ -81,7 +81,7 @@ public class WebTablePageWithCSVTest {
             String userName = person.getFirstName();
             String userLastName = person.getLastName();
 
-            Assert.assertTrue(webTablePage.isNewUserPresent(userName, userLastName),
+            Assert.assertTrue(webTablePage.isUserPresent(userName, userLastName),
                     String.format("User %s %s not found on the grid.", userName, userLastName));
         }
     }
@@ -116,7 +116,7 @@ public class WebTablePageWithCSVTest {
 
             Person person = iterator.next();
             log.info(String.format("Adding data for user: %s %s", person.getFirstName(), person.getLastName()));
-            registrationForm.fillAnsSubmitForm(person);
+            registrationForm.fillAndSubmitForm(person);
 
             if (iterator.hasNext()) {
                 webTablePage.pressOnAddBtn();
