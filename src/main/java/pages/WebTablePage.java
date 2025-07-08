@@ -1,16 +1,13 @@
 package pages;
 
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvException;
 import org.openqa.selenium.*;
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.io.FileReader;
-import java.io.IOException;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class WebTablePage {
@@ -26,7 +23,6 @@ public class WebTablePage {
     public WebTablePage(WebDriver driver) {
         this.driver = driver;
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-        registrationForm = new WebTableRegistrationForm(driver);
     }
 
     public boolean isAddBtnDisplayed() {
@@ -53,12 +49,9 @@ public class WebTablePage {
         return headers;
     }
 
-    public void pressOnAddBtn() {
+    public WebTableRegistrationForm clickAdd() {
         wait.until(ExpectedConditions.elementToBeClickable(addNewRecordButton)).click();
-    }
-
-    public WebTableRegistrationForm getRegistrationForm() {
-        return registrationForm;
+        return new WebTableRegistrationForm(driver);
     }
 
     public boolean isRecordPresent(Map<String, String> data) {
@@ -114,7 +107,7 @@ public class WebTablePage {
         try {
             WebElement element = wait.until(ExpectedConditions.elementToBeClickable(By.xpath(xpath)));
             element.click();
-            return registrationForm;
+            return new WebTableRegistrationForm(driver);
         } catch (TimeoutException e) {
             throw new NoSuchElementException(
                     String.format("Edit button not found for '%s %s'", firstName, lastName), e);
@@ -156,7 +149,7 @@ public class WebTablePage {
     public WebElement getCell(int rowIndex, int cellIndex) {
         WebElement row = getRow(rowIndex);
         List<WebElement> cells = getCellsFromRow(row);
-       return cells.get(cellIndex);
+        return cells.get(cellIndex);
     }
 
     public List<WebElement> getCellsFromRow(WebElement row) {
@@ -169,7 +162,7 @@ public class WebTablePage {
         if (cellIndex >= cells.size()) {
             throw new IndexOutOfBoundsException("Column index out of bounds");
         }
-        return  cells.get(cellIndex).getText();
+        return cells.get(cellIndex).getText();
     }
 
     public void deleteRowByName(String firstName, String lastName) {

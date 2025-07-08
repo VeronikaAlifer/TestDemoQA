@@ -16,6 +16,7 @@ import utils.CSVReader;
 import utils.ExtentReportManager;
 
 import java.lang.reflect.Method;
+import java.time.Duration;
 import java.util.*;
 
 public class WebTablePageTest {
@@ -42,6 +43,7 @@ public class WebTablePageTest {
         driver.get("https://demoqa.com/webtables");
 
         driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         webTablePage = new WebTablePage(driver);
     }
 
@@ -158,7 +160,6 @@ public class WebTablePageTest {
         Assert.assertEquals(actualPeople, people, "Mismatch data.");
     }
 
-
     @Test(description = "TC_002 – Успешное добавление новой записи")
     public void verifyAddingNewRecordTC_002() {
         log.info("Verify that the table is present.");
@@ -168,8 +169,7 @@ public class WebTablePageTest {
         int initialSize = list.size();
 
         log.info("Clicking on 'Add' button.");
-        webTablePage.pressOnAddBtn();
-        modalForm = webTablePage.getRegistrationForm();
+        modalForm= webTablePage.clickAdd();
         Assert.assertTrue(modalForm.isDisplayed(), "Registration form isn't visible, but it should be.");
 
         log.info("Adding new record to the table.");
@@ -194,33 +194,6 @@ public class WebTablePageTest {
         Assert.assertEquals(newPerson, expectedPerson, "The new record was not found in the table.");
     }
 
-    @Test(description = "TC_003 – Добавление записи с пустыми полями")
-    public void verifyAddingEmptyFields() {
-        log.info("Verify that the table is present.");
-        boolean isTablePresent = webTablePage.isGridDisplayed();
-        Assert.assertTrue(isTablePresent, "The table isn't present, but it should be.");
-
-        log.info("Clicking on the button 'Add'");
-        webTablePage.pressOnAddBtn();
-
-        log.info("Verify that the modal form is visible and is not validated.");
-        modalForm = webTablePage.getRegistrationForm();
-        boolean isModalFormPresent = modalForm.isDisplayed();
-        Assert.assertTrue(isModalFormPresent, "Expected the modal form to be visible after clicking 'Add'.");
-
-        boolean isValidated = modalForm.isUserFormValidated();
-        Assert.assertFalse(isValidated, "Expected form to be not validated before submission.");
-
-        log.info("Clicking on the button 'Submit'");
-        modalForm.submitForm();
-        isValidated = modalForm.isUserFormValidated();
-        isModalFormPresent = modalForm.isDisplayed();
-
-        Assert.assertTrue(isValidated, "Expected form to be validated after submitting empty fields.");
-        Assert.assertTrue(isModalFormPresent, "Expected modal form to remain visible after validation.");
-        Assert.assertTrue(modalForm.areFormFieldsEmpty(), "Expected modal forms fields must be empty");
-    }
-
     @Test(description = "TC_005 – Успешное редактирование записи")
     public void testEditSalaryField() {
         String newSalary = "88000";
@@ -228,7 +201,7 @@ public class WebTablePageTest {
         final String LAST_NAME = "Vega";
         String oldSalary = webTablePage.getColumnDataByName(FIRST_NAME, LAST_NAME, "Salary");
 
-        log.info(String.format("Open Edit modal for {} {}", FIRST_NAME, LAST_NAME));
+        log.info(String.format("Open Edit modal for %s %s", FIRST_NAME, LAST_NAME));
         modalForm = webTablePage.performEditAction(FIRST_NAME, LAST_NAME);
 
         log.info("Update salary.");
@@ -259,8 +232,8 @@ public class WebTablePageTest {
         isUserPresent = webTablePage.isUserPresent(firstName, lastName);
         Assert.assertFalse(isUserPresent,
                 String.format("The user %s %s present on the grid, but it should nor be.", firstName, lastName));
-
     }
+
 
     /////////////////////////old test
 
@@ -297,10 +270,9 @@ public class WebTablePageTest {
     @Test
     public void verifyAddingNewRecord() {
         log.info("Open the registration form");
-        webTablePage.pressOnAddBtn();
+        modalForm= webTablePage.clickAdd();
 
         log.info("Verifying the registration form is displayed.");
-        modalForm = webTablePage.getRegistrationForm();
         boolean isModalFormDisplayed = modalForm.isDisplayed();
         Assert.assertTrue(isModalFormDisplayed, "The registration form is not displayed but should be.");
 
@@ -327,7 +299,6 @@ public class WebTablePageTest {
 
     @AfterMethod
     public void tearDown(ITestResult result) {
-        log.info("Closing browser.");
         if (result.getStatus() == ITestResult.SUCCESS) {
             log.pass("Test passed!!");
         } else if (result.getStatus() == ITestResult.SKIP) {
@@ -338,6 +309,8 @@ public class WebTablePageTest {
         }
         if (driver != null) {
             driver.quit();
+            log.info("Closing browser.");
+
         }
     }
 

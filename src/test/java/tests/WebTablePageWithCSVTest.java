@@ -61,11 +61,9 @@ public class WebTablePageWithCSVTest {
         List<Person> people = CSVReader.readPeopleFromCsv(fileName);
 
         log.info("Opening the registration form by clicking 'Add' button.");
-        webTablePage.pressOnAddBtn();
+        registrationForm = webTablePage.clickAdd();
 
         log.info("Verifying the registration form is displayed.");
-        registrationForm = webTablePage.getRegistrationForm();
-
         Assert.assertTrue(registrationForm.isDisplayed(), "The registration form is not displayed, but should be.");
 
         log.info("Filling and submitting the registration form for each user.");
@@ -119,7 +117,7 @@ public class WebTablePageWithCSVTest {
             registrationForm.fillAndSubmitForm(person);
 
             if (iterator.hasNext()) {
-                webTablePage.pressOnAddBtn();
+                webTablePage.clickAdd();
             }
         }
     }

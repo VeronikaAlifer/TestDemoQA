@@ -44,19 +44,21 @@ public class WebTableRegistrationForm {
     }
 
 
-    public void enterEmail(String userEmail) {
+    public WebTableRegistrationForm enterEmail(String userEmail) {
         driver.findElement(this.userEmail).sendKeys(userEmail);
+        return this;
     }
 
-    public void enterAge(String age) {
+    public WebTableRegistrationForm enterAge(String age) {
         driver.findElement(this.age).sendKeys(age);
+        return this;
     }
 
     public WebTableRegistrationForm enterSalary(String salary) {
-       WebElement element = driver.findElement(this.salary);
-       element.clear();
-       element.sendKeys(salary);
-       return this;
+        WebElement element = driver.findElement(this.salary);
+        element.clear();
+        element.sendKeys(salary);
+        return this;
     }
 
     public void enterDepartment(String department) {
@@ -118,5 +120,22 @@ public class WebTableRegistrationForm {
             }
         }
         return true;
+    }
+
+    public String getEmailValidationMessage() {
+        return getValidationMessage(driver.findElement(userEmail));
+    }
+
+    public String getAgeValidationMessage() {
+        return getValidationMessage(driver.findElement(age));
+    }
+
+    public String getSalaryValidationMessage() {
+        return getValidationMessage(driver.findElement(salary));
+    }
+
+    private String getValidationMessage(WebElement element) {
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        return (String) js.executeScript("return arguments[0].validationMessage;", element);
     }
 }
