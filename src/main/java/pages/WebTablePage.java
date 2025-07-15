@@ -2,7 +2,9 @@ package pages;
 
 import org.openqa.selenium.*;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import utils.ScrollUtils;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -19,6 +21,10 @@ public class WebTablePage {
     private By searchBox = By.id("searchBox");
     private By grid = By.className("rt-table");
     private By records = By.xpath("//*[contains(@class, 'rt-tr') and (contains(@class, '-even') or contains(@class, '-odd')) and not(contains(@class, '-padRow'))]");
+    private By rowsSizeDropDownElm = By.tagName("select");
+    private By previousBtn = By.xpath("//div[@class = '-previous']");
+    private By nextBtn = By.xpath("//div[@class = '-next']");
+    private By pageInfo = By.cssSelector("input[aria-label='jump to page']");
 
     public WebTablePage(WebDriver driver) {
         this.driver = driver;
@@ -175,5 +181,48 @@ public class WebTablePage {
         );
 
         driver.findElement(By.xpath(xpath)).click();
+    }
+
+    public void enterTextInSearchBox(String text) {
+        WebElement element = driver.findElement(searchBox);
+        element.click();
+        element.sendKeys(text);
+    }
+
+    public void cleanSearchBox() {
+        driver.findElement(searchBox).clear();
+    }
+
+    public void setUpGridRowsSize(String rowSize) {
+        Select select = getSelectElement();
+        select.selectByValue(rowSize);
+    }
+
+    public String getSelectedOption() {
+        Select select = getSelectElement();
+        return select.getFirstSelectedOption().getText();
+    }
+
+    private Select getSelectElement() {
+        WebElement element = driver.findElement(rowsSizeDropDownElm);
+        return new Select(element);
+    }
+
+    public void clickNextBtn() {
+        clickBtn(nextBtn);
+    }
+
+    public void clickPreviousBtn() {
+        clickBtn(previousBtn);
+    }
+    public String getPageInfo() {
+        return driver.findElement(pageInfo).getAttribute("value");
+    }
+
+    private void clickBtn(By by) {
+        WebElement element = driver.findElement(by);
+        wait.until(ExpectedConditions.elementToBeClickable(element));
+        ScrollUtils.scroll(driver, element);
+        element.click();
     }
 }
