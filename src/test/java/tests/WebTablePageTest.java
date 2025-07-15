@@ -2,16 +2,14 @@ package tests;
 
 import com.aventstack.extentreports.ExtentReports;
 import com.aventstack.extentreports.ExtentTest;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.checkerframework.checker.units.qual.A;
-import org.checkerframework.framework.qual.DefaultQualifier;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.Assert;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
 import org.testng.asserts.SoftAssert;
-import pages.RegistrationFormModalForm;
 import pages.WebTablePage;
 import pages.WebTableRegistrationForm;
 import testdata.Person;
@@ -19,6 +17,7 @@ import utils.CSVReader;
 import utils.ExtentReportManager;
 
 import java.lang.reflect.Method;
+import java.time.Duration;
 import java.util.*;
 
 public class WebTablePageTest {
@@ -45,6 +44,7 @@ public class WebTablePageTest {
         driver.get("https://demoqa.com/webtables");
 
         driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
         webTablePage = new WebTablePage(driver);
     }
 
@@ -57,12 +57,12 @@ public class WebTablePageTest {
         Assert.assertTrue(isTableDisplayed, "The grid is not displayed but must be.");
 
         log.info("Verify list size match.");
-        List<WebElement> actualColumnsHeaders = webTablePage.getGridColumn();
+        List<String> actualColumnsHeaders = webTablePage.getGridColumnHeaders();
         Assert.assertEquals(columnHeaders.size(), actualColumnsHeaders.size(), "The number of columns does not match the expected number.");
 
         log.info("Verify column header.");
         for (int i = 0; i < columnHeaders.size(); i++) {
-            String actualValue = actualColumnsHeaders.get(i).getText();
+            String actualValue = actualColumnsHeaders.get(i);
             String expectedValue = columnHeaders.get(i);
             Assert.assertEquals(actualValue, expectedValue, "Actual value does not match expected value.");
         }
@@ -128,7 +128,6 @@ public class WebTablePageTest {
             }
         }
         softAssert.assertAll();
-
     }
 
     @Test(description = "TC_001 (b) – Отображение таблицы после загрузки страницы.POJO")
@@ -162,7 +161,6 @@ public class WebTablePageTest {
         Assert.assertEquals(actualPeople, people, "Mismatch data.");
     }
 
-
     @Test(description = "TC_002 – Успешное добавление новой записи")
     public void verifyAddingNewRecordTC_002() {
         log.info("Verify that the table is present.");
@@ -172,8 +170,7 @@ public class WebTablePageTest {
         int initialSize = list.size();
 
         log.info("Clicking on 'Add' button.");
-        webTablePage.pressOnAddBtn();
-        modalForm = webTablePage.getRegistrationForm();
+        modalForm = webTablePage.clickAdd();
         Assert.assertTrue(modalForm.isDisplayed(), "Registration form isn't visible, but it should be.");
 
         log.info("Adding new record to the table.");
@@ -198,31 +195,166 @@ public class WebTablePageTest {
         Assert.assertEquals(newPerson, expectedPerson, "The new record was not found in the table.");
     }
 
-    @Test(description = "TC_003 – Добавление записи с пустыми полями")
-    public void verifyAddingEmptyFields() {
-        log.info("Verify that the table is present.");
-        boolean isTablePresent = webTablePage.isGridDisplayed();
-        Assert.assertTrue(isTablePresent, "The table isn't present, but it should be.");
+    @Test(description = "TC_005 – Успешное редактирование записи")
+    public void testEditSalaryField() {
+        String newSalary = "88000";
+        final String FIRST_NAME = "Cierra";
+        final String LAST_NAME = "Vega";
+        String oldSalary = webTablePage.getColumnDataByName(FIRST_NAME, LAST_NAME, "Salary");
 
-        log.info("Clicking on the button 'Add'");
-        webTablePage.pressOnAddBtn();
+        log.info(String.format("Open Edit modal for %s %s", FIRST_NAME, LAST_NAME));
+        modalForm = webTablePage.performEditAction(FIRST_NAME, LAST_NAME);
 
-        log.info("Verify that the modal form is visible and is not validated.");
-        modalForm = webTablePage.getRegistrationForm();
-        boolean isModalFormResent = modalForm.isDisplayed();
-        Assert.assertTrue(isModalFormResent, "Expected the modal form to be visible after clicking 'Add'.");
+        log.info("Update salary.");
+        modalForm.enterSalary(newSalary).submitForm();
 
-        boolean isValidated = modalForm.isUserFormValidated();
-        Assert.assertFalse(isValidated, "Expected form to be not validated before submission.");
+        log.info("Verify that the main page is opened.");
+        boolean isManePageDisplayed = webTablePage.isGridDisplayed();
+        Assert.assertTrue(isManePageDisplayed, "The table isn't present, but it should be.");
 
-        log.info("Clicking on the button 'Submit'");
-        modalForm.submitForm();
-        isValidated = modalForm.isUserFormValidated();
-        isModalFormResent = modalForm.isDisplayed();
+        log.info("Verify that the salary value is changed.");
+        Assert.assertNotEquals(oldSalary, newSalary, "The salary doesn't change, but it should be.");
 
-        Assert.assertTrue(isValidated, "Expected form to be validated after submitting empty fields.");
-        Assert.assertTrue(isModalFormResent, "Expected modal form to remain visible after validation.");
-        Assert.assertTrue(modalForm.areFormFieldsEmpty(), "Expected modal forms fields must be empty");
+        String actualSalary = webTablePage.getColumnDataByName(FIRST_NAME, LAST_NAME, "Salary");
+        Assert.assertEquals(actualSalary, newSalary, "The new salary doesn't match with  actual salary.");
+    }
+
+    @Test(description = "TC_006 – Удаление записи из таблицы")
+    public void testDeleteRow() {
+        String firstName = "Alden";
+        String lastName = "Cantrell";
+        boolean isUserPresent = webTablePage.isUserPresent(firstName, lastName);
+        Assert.assertTrue(isUserPresent, String.format("User %s %s is not present, but it should be.", firstName, lastName));
+
+        log.info("Click on 'Delete' button.");
+        webTablePage.deleteRowByName(firstName, lastName);
+
+        log.info(String.format("Verify that user %s %s is not present in the grid.", firstName, lastName));
+        isUserPresent = webTablePage.isUserPresent(firstName, lastName);
+        Assert.assertFalse(isUserPresent,
+                String.format("The user %s %s present on the grid, but it should nor be.", firstName, lastName));
+    }
+
+    @Test(description = "TC_007 – Поиск по имени (существующее значение)")
+    public void testInputSearchBoxByExistingName() {
+
+        String userName = "Alden";
+        String userLastName = "Cantrell";
+
+        log.info("Verify that the record list > 1");
+        int recordListSize = webTablePage.getRecordsList().size();
+        Assert.assertTrue(recordListSize > 1, "The list size less than 1");
+
+        log.info("Enter the user name in the search box");
+        webTablePage.enterTextInSearchBox(userName);
+
+        log.info("Verify the record list size changed.");
+        int actualRecordListSize = webTablePage.getRecordsList().size();
+        Assert.assertTrue(actualRecordListSize < recordListSize && recordListSize > 0,
+                "Unexpected record count.");
+
+        log.info("Verify that the expected user is present.");
+        boolean isPresent = webTablePage.isUserPresent(userName, userLastName);
+        Assert.assertTrue(isPresent, "The user does not present.");
+    }
+
+    @Test(description = "TC_008 – Поиск по несуществующему значению.")
+    public void testSearchRecordByInvalidValue() {
+        String invalidValue = "dfghjkl";
+
+        log.info("Verify that the table is not empty.");
+        Assert.assertFalse(webTablePage.getRecordsList().isEmpty(), "Record list size should not be empty.");
+
+        log.info("Enter invalid value in search box.");
+        webTablePage.enterTextInSearchBox(invalidValue);
+
+        log.info("Get record list size and verify.");
+        Assert.assertTrue(webTablePage.getRecordsList().isEmpty(), "Record list size must be empty.");
+    }
+
+    @Test(description = "TC_009 – Поиск по email")
+    public void testSearchByEmail() {
+        String targetEmail = "kierra@example.com";
+        String userName = "Kierra";
+        String userLastName = "Gentry";
+
+        log.info("Verify that the web‑table contains at least one record before filtering.");
+        Assert.assertFalse(webTablePage.getRecordsList().isEmpty(),
+                "The table is empty, but it must contain records.");
+
+        log.info(String.format("Enter the e‑mail '%s' into the search box.", targetEmail));
+        webTablePage.enterTextInSearchBox(targetEmail);
+
+        log.info("Verify that exactly one row is displayed after filtering.");
+        List<WebElement> filteredRecords = webTablePage.getRecordsList();
+        Assert.assertEquals(filteredRecords.size(), 1,
+                String.format("Expected exactly 1 record after filtering by '%s', but found %d.",
+                        targetEmail, filteredRecords.size()));
+
+        log.info(String.format("Verify that the displayed record belongs to %s %s.", userName, userLastName));
+        Assert.assertTrue(webTablePage.isUserPresent(userName, userLastName),
+                String.format("The expected user %s %s was not found.", userName, userLastName));
+    }
+
+    @Test(description = "TC_014 – Изменение количества отображаемых строк")
+    public void testChangingAmountOfRows() {
+        int defaultRowsListSize = 10;
+
+        String defaultSelectRowsOption = defaultRowsListSize + " rows";
+        List<String> rowsValueList = List.of("5", "10", "20");
+
+        log.info("Verify default rows size before filtering.");
+        List<WebElement> rows = webTablePage.getRows();
+        String actualValue = webTablePage.getSelectedOption();
+        int actualRowListSize = rows.size();
+
+        Assert.assertEquals(actualValue, defaultSelectRowsOption, "The default values do not match the expected outcome.");
+        Assert.assertEquals(actualRowListSize, defaultRowsListSize, "The default values do not match the expected outcome.");
+        Assert.assertTrue(actualValue.contains(String.valueOf(actualRowListSize)), "The values does not match, but the should be.");
+
+
+        for (String rowOption : rowsValueList) {
+            log.info(String.format("Set up %s rows value", rowOption));
+            setUpRowsOptions(rowOption);
+        }
+    }
+
+    @Test(description = "TC_013 – Массовое добавление 50 записей")
+    public void testMassAdditionOfRecordsWithPagination() {
+        Random random = new Random();
+        log.info("Start adding 50 new records to the table.");
+
+        for (int i = 0; i <= 20; i++) {
+            log.info("Adding record #" + (i + 1));
+            int randomValue = random.nextInt(50000) + 1;
+            int age = 18 + random.nextInt(48);
+
+            modalForm = webTablePage.clickAdd();
+            modalForm.enterFirstName("Name" + randomValue);
+            modalForm.enterLastName("LastName" + randomValue);
+            modalForm.enterAge(String.valueOf(age));
+            modalForm.enterEmail(randomValue + "@gmail.com");
+            modalForm.enterDepartment("Insurance");
+            modalForm.enterSalary(String.valueOf(randomValue));
+            modalForm.submitForm();
+        }
+
+        log.info("Checking if the first page is displayed.");
+        String pageInfoValue = webTablePage.getPageInfo();
+        Assert.assertEquals(pageInfoValue, "1",
+                "Expected to be on page 1 after adding records, but was on page: " + pageInfoValue);
+
+        log.info("Clicking on 'Next' button.");
+        webTablePage.clickNextBtn();
+        pageInfoValue = webTablePage.getPageInfo();
+        Assert.assertEquals(pageInfoValue, "2",
+                "Expected to be on page 2 after clicking next, but was on: " + pageInfoValue);
+
+        log.info("Clicking on 'Previous' button.");
+        webTablePage.clickPreviousBtn();
+        pageInfoValue = webTablePage.getPageInfo();
+        Assert.assertEquals(pageInfoValue, "1",
+                "Expected to return to page 1 after clicking previous, but was on: " + pageInfoValue);
     }
 
     /////////////////////////old test
@@ -235,22 +367,22 @@ public class WebTablePageTest {
 
         boolean isTableDisplayed = webTablePage.isGridDisplayed();
 
-
         boolean isSearchBoxDisplayed = webTablePage.isSearchBoxDisplayed();
         Assert.assertTrue(isSearchBoxDisplayed, "Search box is not displayed but should be.");
     }
 
+
     @Test
     public void verifyWebTableColumns() {
         List<String> expectedValue = List.of("First Name", "Last Name", "Age", "Email", "Salary", "Department", "Action");
-        List<WebElement> list = webTablePage.getGridColumn();
+        List<String> list = webTablePage.getGridColumnHeaders();
 
         log.info("Verify list size match.");
         Assert.assertEquals(list.size(), expectedValue.size(), "The number of columns does not match the expected number.");
 
         log.info("Verifying column headers.");
         for (int i = 0; i < list.size(); i++) {
-            String actualValue = list.get(i).getText().trim();
+            String actualValue = list.get(i).trim();
             String expectedResult = expectedValue.get(i);
 
             Assert.assertEquals(actualValue, expectedResult, "Actual value does not match expected value.");
@@ -260,10 +392,9 @@ public class WebTablePageTest {
     @Test
     public void verifyAddingNewRecord() {
         log.info("Open the registration form");
-        webTablePage.pressOnAddBtn();
+        modalForm = webTablePage.clickAdd();
 
         log.info("Verifying the registration form is displayed.");
-        modalForm = webTablePage.getRegistrationForm();
         boolean isModalFormDisplayed = modalForm.isDisplayed();
         Assert.assertTrue(isModalFormDisplayed, "The registration form is not displayed but should be.");
 
@@ -288,21 +419,22 @@ public class WebTablePageTest {
         Assert.assertTrue(isNewRecordPresent, "The new record was not found in the table.");
     }
 
-    @AfterMethod
-    public void tearDown(ITestResult result) {
-        log.info("Closing browser.");
-        if (result.getStatus() == ITestResult.SUCCESS) {
-            log.pass("Test passed!!");
-        } else if (result.getStatus() == ITestResult.SKIP) {
-            log.skip("Test skipped");
-        } else if (result.getStatus() == ITestResult.FAILURE) {
-            log.fail(result.getThrowable().getMessage())
-                    .addScreenCaptureFromBase64String(getBase64Screenshot());
-        }
-        if (driver != null) {
-            driver.quit();
-        }
-    }
+//    @AfterMethod
+//    public void tearDown(ITestResult result) {
+//        if (result.getStatus() == ITestResult.SUCCESS) {
+//            log.pass("Test passed!!");
+//        } else if (result.getStatus() == ITestResult.SKIP) {
+//            log.skip("Test skipped");
+//        } else if (result.getStatus() == ITestResult.FAILURE) {
+//            log.fail(result.getThrowable().getMessage())
+//                    .addScreenCaptureFromBase64String(getBase64Screenshot());
+//        }
+//        if (driver != null) {
+//            driver.quit();
+//            log.info("Closing browser.");
+//
+//        }
+//    }
 
     @AfterClass
     public void teraDownReports() {
@@ -311,5 +443,15 @@ public class WebTablePageTest {
 
     public String getBase64Screenshot() {
         return ((TakesScreenshot) driver).getScreenshotAs(OutputType.BASE64);
+    }
+
+    private void setUpRowsOptions(String expectedRowCountStr) {
+        webTablePage.setUpGridRowsSize(expectedRowCountStr);
+
+        log.info("Verify that the values changed after filtering.");
+        Assert.assertEquals(webTablePage.getRows().size(), Integer.valueOf(expectedRowCountStr),
+                "The values does not match the expected result.");
+        Assert.assertTrue(webTablePage.getSelectedOption().contains(expectedRowCountStr),
+                "The rows selected values does not contain expected value.");
     }
 }

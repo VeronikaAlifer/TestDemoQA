@@ -61,11 +61,9 @@ public class WebTablePageWithCSVTest {
         List<Person> people = CSVReader.readPeopleFromCsv(fileName);
 
         log.info("Opening the registration form by clicking 'Add' button.");
-        webTablePage.pressOnAddBtn();
+        registrationForm = webTablePage.clickAdd();
 
         log.info("Verifying the registration form is displayed.");
-        registrationForm = webTablePage.getRegistrationForm();
-
         Assert.assertTrue(registrationForm.isDisplayed(), "The registration form is not displayed, but should be.");
 
         log.info("Filling and submitting the registration form for each user.");
@@ -81,7 +79,7 @@ public class WebTablePageWithCSVTest {
             String userName = person.getFirstName();
             String userLastName = person.getLastName();
 
-            Assert.assertTrue(webTablePage.isNewUserPresent(userName, userLastName),
+            Assert.assertTrue(webTablePage.isUserPresent(userName, userLastName),
                     String.format("User %s %s not found on the grid.", userName, userLastName));
         }
     }
@@ -116,10 +114,10 @@ public class WebTablePageWithCSVTest {
 
             Person person = iterator.next();
             log.info(String.format("Adding data for user: %s %s", person.getFirstName(), person.getLastName()));
-            registrationForm.fillAnsSubmitForm(person);
+            registrationForm.fillAndSubmitForm(person);
 
             if (iterator.hasNext()) {
-                webTablePage.pressOnAddBtn();
+                webTablePage.clickAdd();
             }
         }
     }
