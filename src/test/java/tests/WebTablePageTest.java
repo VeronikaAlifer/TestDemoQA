@@ -320,7 +320,7 @@ public class WebTablePageTest {
     }
 
     @Test(description = "TC_013 – Массовое добавление 50 записей")
-    public void testAddingLotsAmountRecords() {
+    public void testMassAdditionOfRecordsWithPagination() {
         Random random = new Random();
         log.info("Start adding 50 new records to the table.");
 
